@@ -1,0 +1,156 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e1e; /* Dark background for a DJ vibe */
+  color: #fff; /* White text for contrast */
+}
+
+header {
+  background-color: #222;
+  padding: 20px;
+  text-align: center;
+}
+
+header img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+header h1 {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto; /* Center the navigation */
+  width: 80%;
+  display: flex;
+  justify-content: space-around;
+}
+
+nav li {
+  margin: 0 10px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+}
+
+#hero {
+  text-align: center;
+  padding: 50px;
+  background-image: url("hero-background.jpg"); /* Add a background image */
+  background-size: cover;
+  background-position: center;
+}
+
+#hero h2 {
+  color: #fff;
+  font-size: 40px;
+  margin-bottom: 20px;
+}
+
+#hero button {
+  background-color: #f00;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#about, #music, #events, #contact {
+  padding: 20px;
+  text-align: center;
+}
+
+#about img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+}
+
+#music audio {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+#events ul {
+  list-style: none;
+  padding: 0;
+}
+
+#events li {
+  margin-bottom: 10px;
+}
+
+#events h3 {
+  font-size: 20px;
+}
+
+#contact form {
+  width: 80%;
+  margin: 0 auto;
+}
+
+#contact label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+#contact input, #contact textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#contact button {
+  background-color: #f00;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+footer {
+  background-color: #222;
+  padding: 20px;
+  text-align: center;
+}
+
+footer p {
+  margin-bottom: 0;
+}
+
+footer img {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+/* Responsiveness */
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 24px;
+  }
+
+  #hero h2 {
+    font-size: 30px;
+  }
+
+  #about img {
+    width: 150px;
+    height: 150px;
+  }
+}

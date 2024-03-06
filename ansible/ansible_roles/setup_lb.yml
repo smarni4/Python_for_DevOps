@@ -1,0 +1,8 @@
+# setup_lb.yaml
+
+---
+  - name: loadbalancers-config
+    hosts: loadbalancers
+    become: 'true'
+    roles:
+      - load_balancers

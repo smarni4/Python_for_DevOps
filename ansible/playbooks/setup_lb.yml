@@ -1,0 +1,17 @@
+# setup_lb.yaml
+
+---
+  - name: loadbalancers-config
+    hosts: loadbalancers
+    become: 'true'
+    tasks:
+      - name: Creating template
+        template:
+          src: ../config/load_balancer_config.j2
+          dest: /etc/httpd/conf.d/lb.conf
+          owner: bin
+          group: wheel
+          mode: 064
+
+      - name: restart apache
+        service: name=httpd state=restarted

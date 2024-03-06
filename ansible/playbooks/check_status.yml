@@ -1,0 +1,10 @@
+# check_status.yaml
+---
+- hosts: webservers:loadbalancers
+  become: true
+  tasks:
+    - name: Check status of apache
+      command: service httpd status
+      register: service_status_output
+    - name: Get the apache status output
+      debug: msg="{{ service_status_output.stdout_lines }}"

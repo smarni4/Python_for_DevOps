@@ -1,0 +1,4 @@
+---
+# handlers file for roles/webservers
+- name: restart apache          # Restarts the apache server after the changes
+  service: name=httpd state=restarted

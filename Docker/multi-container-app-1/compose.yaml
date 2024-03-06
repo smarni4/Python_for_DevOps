@@ -1,0 +1,11 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:5000"
+    volumes:
+      - .:/code
+    environment:
+      FLASK_DEBUG: "true"       # tells flask run to run in development mode and reload the code on changes
+  redis:
+    image: "redis:alpine"

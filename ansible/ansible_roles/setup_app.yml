@@ -1,0 +1,7 @@
+# setup-app.yaml
+
+---
+  - hosts: webservers
+    become: true
+    roles:
+      - webservers

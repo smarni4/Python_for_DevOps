@@ -1,0 +1,32 @@
+# setup-app.yaml
+
+---
+  - hosts: webservers
+    become: true
+
+    vars:
+      path_to_app: "/var/www/html"
+
+    tasks:
+      - name: Upload application file
+        copy:                         # Copies the app file from local to remote servers
+          src: ../php_files/index.php
+          dest: "{{ path_to_app }}"
+          mode: 0755
+
+      - name: Create a simple info page
+        copy:
+          dest: "{{ path_to_app }}"/info.php
+          content: "<h1> Info about our webserver {{ ansible_hostname }} </h1>"
+
+
+      - name: configure php.ini file  # Configure the php.ini file to accept the short open tag
+        lineinfile:
+          path: /etc/php.ini
+          regexp: ^short_open_tag     # Allows the user to write the php files with short open tags
+          line: 'short_open_tag=On'
+        notify: restart apache
+
+    handlers:
+      - name: restart apache          # Restarts the apache server after the changes
+        service: name=httpd state=restarted

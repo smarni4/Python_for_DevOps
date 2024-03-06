@@ -1,0 +1,55 @@
+# ping.yaml
+---
+# Play 1 Ping to the servers
+  - name: ping to webservers group servers
+    hosts: webservers # [all, loadbalancers]
+    become: "{{ user_name | default('true') }}" # uses user_name if given or root by default
+    tasks:
+      - name: ping to the hosts
+        action: ping
+
+# Play 2 Get the OS type of the servers
+  - name: Get the OS type of the servers
+    hosts: webservers:loadbalancers   # performs only on webservers and loadbalancers group
+    tasks:
+      - name: Get the OS type of the hosts
+        shell: uname
+        register: uname_output   # Registers the output of the uname command in uname_output variable
+      - name: print the uname output
+        debug: msg="{{ uname_output.stdout }}"  # prints the stdout key value in the uname_output variable.
+
+# Play 3 Updates the yum packages
+  - name: update yum
+    hosts: webservers:loadbalancers
+    become: 'true'
+    tasks:
+      - yum:
+          name: "*"
+          state: latest
+        when: uname_output.stdout == "Linux"
+
+# Play 4 Install apache on load balancer group servers
+  - name: Install apache on load balancer
+    hosts: loadbalancers
+    become: "{{ user_name | default('true') }}"
+    tasks:
+      - name: install apache
+        yum:
+          name: httpd
+          state: latest
+      - name: Ensure apache starts
+        service: name=httpd state=started enabled=yes  # httpd starts when ever the system reboots (enabled=yes)
+
+# Play 5 Install apache and Php on the webservers group servers
+  - name: Install apache and php on webservers
+    hosts: webservers
+    become: 'true'
+    tasks:
+      - name: install apache and php on webservers
+        yum:
+          name:
+            - httpd
+            - php
+          state: latest
+      - name: Ensure apache starts
+        service: name=httpd state=started enabled=yes

@@ -1,0 +1,7 @@
+# all-playbooks.yaml
+---
+
+  - import_playbook: install_services.yml
+  - import_playbook: setup_app.yml
+  - import_playbook: setup_lb.yml
+  - import_playbook: check_status.yml
