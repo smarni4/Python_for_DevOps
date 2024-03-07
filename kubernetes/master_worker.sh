@@ -45,7 +45,7 @@ sudo apt-get update && sudo apt-get install containerd
 
 # Configuring containerd files
 echo -e "\n configuring containerd files \n"
-sudo mkdir -p /etc/containerd
+sudo mkdir /etc/containerd
 sudo containerd config default | sudo tee /etc/containerd/config.toml
 
 # Restart the containerd configuration
@@ -57,8 +57,8 @@ sudo swapoff -a
 
 # Install packages apt-transport-https and curl
 echo -e "\n Installing apt-transport-https and curl"
-sudo apt-get update && sudo apt-install -y apt-transport-https curl
-
+sudo apt-get update && sudo apt-get install -y apt-transport-https curl
+sleep 30
 # Install kubernetes tools and set them on hold not to update automatically
 echo -e "\n Installing kubernetes tools \n"
 sudo apt-get install -y kubelet kubeadm kubectl
