@@ -13,7 +13,7 @@ if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "" ]]; then
   exit 0
 fi
 
-#Set the host name
+# Set the host name
 echo -e "\nSet the host name \n"
 sudo hostnamectl set-hostname "$3"
 # Enabling kernel modules
@@ -95,4 +95,9 @@ kubectl get nodes
 echo -e "\nApply network configuration \n"
 kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
 
+# Token creation for joining the worker nodes
+kubeadm token create --print-join-command > join_token.txt
+
+elif [ $1 == "worker" ]; then
+  sudo $(cat ./join_token.txt)
 fi
