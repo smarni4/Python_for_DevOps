@@ -28,7 +28,6 @@ EOF
 sudo modprobe overlay
 sudo modprobe br_netfilter
 
-
 # System level network configurations
 echo -e "\nSystem level network configuration \n"
 cat <<EOF | sudo tee /etc/sysctl.d/k8s.conf
