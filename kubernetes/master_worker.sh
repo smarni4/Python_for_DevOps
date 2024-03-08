@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+
 # Display help message
 if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "" ]]; then
   echo "  "
@@ -58,7 +59,6 @@ sudo swapoff -a
 # Install packages apt-transport-https and curl
 echo -e "\n Installing apt-transport-https and curl"
 sudo apt-get update && sudo apt-get install -y apt-transport-https curl
-sleep 300
 
 
 # Install the official .gpg files and add it using apt-key
