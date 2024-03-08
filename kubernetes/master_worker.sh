@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+# Referral documentation: https://medium.com/@mehmetodabashi/installing-kubernetes-on-ubuntu-20-04-e49c43c63d0c
 
 # Display help message
 if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "" ]]; then
