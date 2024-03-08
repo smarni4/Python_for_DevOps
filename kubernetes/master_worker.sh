@@ -82,7 +82,7 @@ echo -e "\n $private_ip\n"
 
 # Initialize the cluster
 echo -e "\nInitializing the cluster \n"
-sudo kubeadm init --pod-network-cidr $private_ip/16 --kubernetes-version $2
+sudo kubeadm init --pod-network-cidr 192.168.0.0/16 --kubernetes-version $2
 
 # Configure user's kubeconfig file manage cluster
 echo -e "\n Configure the users kubeconfig file \n"
