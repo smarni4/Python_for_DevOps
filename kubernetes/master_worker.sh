@@ -61,7 +61,7 @@ sudo apt-get update && sudo apt-get install -y apt-transport-https curl
 sleep 30
 # Install kubernetes tools and set them on hold not to update automatically
 echo -e "\n Installing kubernetes tools \n"
-sudo apt-get install -y kubelet kubeadm kubectl
+sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
 if [[ "$1" == 'master' ]]; then
