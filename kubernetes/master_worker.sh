@@ -45,33 +45,36 @@ sudo apt-get update && sudo apt-get install containerd
 
 # Configuring containerd files
 echo -e "\n configuring containerd files \n"
-sudo mkdir /etc/containerd
+sudo mkdir -p /etc/containerd
 sudo containerd config default | sudo tee /etc/containerd/config.toml
 
 # Restart the containerd configuration
 sudo systemctl restart containerd
 
 # disable swap
-
+# memory
 sudo swapoff -a
 
 # Install packages apt-transport-https and curl
 echo -e "\n Installing apt-transport-https and curl"
 sudo apt-get update && sudo apt-get install -y apt-transport-https curl
-sleep 30
+sleep 300
+
+
+# Install the official .gpg files and add it using apt-key
+echo -e "\n Installing .gpg files \n"
+sudo mkdir -p /etc/apt/keyrings
+echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /"
+curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+cat << EOF | sudo tee /etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenail main
+EOF
 # Install kubernetes tools and set them on hold not to update automatically
 echo -e "\n Installing kubernetes tools \n"
 sudo apt-get update && sudo apt-get install -y kubelet kubeadm kubectl
 sudo apt-mark hold kubelet kubeadm kubectl
 
 if [[ "$1" == 'master' ]]; then
-# Install the official .gpg files and add it using apt-key
-echo -e "\n Installing .gpg files \n"
-sudo mkdir -p /etc/apt/keyrings
-echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.28/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
-curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.28/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-sudo apt-get update
-
 # ipaddress of the master server
 echo -e "\n Getting ip address of the server \n"
 private_ip=$(ec2metadata --local-ipv4)
