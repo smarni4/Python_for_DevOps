@@ -1,6 +1,7 @@
 # Linux Certified System Administrator Exam (EX200)
 
 # Accessing Linux Systems
+![linux commands](./images/linux_commands.png)
 
 ```
 ## Scenario-1:
@@ -70,6 +71,7 @@ and send them a copy of the Apache license file.
 * We can even send the errors to the null to avoid them to appear on the screen, and also we don't need it for 
   further processes by providing /dev/null as the destination to the errors.
   **2> /dev/null**
+* **2>&1** this will send the stderr to the stdinput and log's them.
 * **journalctl** queries the journal and provide the output based on the specifications given.
   `journalctl --unit=httpd --no-pager >> raw_logs/master.log`. This command appends the httpd unit logs to the master.log file.
 
@@ -91,6 +93,9 @@ that we can import to our spreadsheet.
   and prints the first column second column and third column along with the comma in between them and write the output 
   to the hosts.csv file in the current working directory.
   `awk -F ' ' {print $1 "," $2 "," $3 "," $4} /etc/hosts > ./hosts.csv`
+* We can input the content to the file using the **cat > input.txt**.
+  Type the input data.
+  When you want to exit from the editor, press **ctrl+d**.
 
 ```
 Senario:
@@ -114,7 +119,7 @@ Finally, they;ve asked us to configure the web_user account so that new files ca
 * We can set the umask to the user by **echo 'umask 0027' > ~/.bashrc**
 
 ## Archiving / Compressing
-
+![files_directories.png](./images/files_direc_commands.png)
 * Archiving is the process of collecting one or more files or folders and storing in a single file. [tar and star]
 * Compression is reducing the size of the file. [gzip and bzip2]
 * We can use the archiving and compression together or separately.
@@ -212,3 +217,100 @@ else
 
 fi
 ```
+
+* We can grep through the different subfolders using `grep 'word1\|word2\|word3' /etc/{sf_1,sf2,sf3}`
+
+## Managing the Boot Process
+
+```
+Scenario:
+We lost the root password to our system.
+We need to leverage our ability to interrupt the system boot to change the root password.
+We explore the interactive nature of the GRUB bootloader and use it to access our system to perform important system
+maintenance and recovery procedures.
+```
+* Boot process:
+  * BIOS/POST: Server is powered on, BIOS loads and executes POST.
+  * Master Boot Record (MBR): BIOS loads the contents of the MBR.
+  * GRUB: The Grub bootloader loads the kernel.
+  * Kernel: The kernel loads drivers and starts systemd
+  * systemd: Reads /etc/systemd configuration files and default.target file.
+  * default.target: System comes to the state as defined in the default.target
+
+* step-1: login as a user with root permissions
+* step-2: check the default target file using `systemctl get-default`
+* step-3: reboot the system using `sudo systemctl reboot`
+* step-4: Now we will enter into bios mode. move to the linux line and add `rd.break` at the end and exit.
+* step-5: remount the /sysroot as read and write using `mount -o rw,remount /sysroot`
+* step-6: change to root using `chroot /sysroot`
+* step-7: change the password using `password root` and set the new password.
+* step-8: Now auto-relabel the SElinux using `touch /.autorelabel`
+* step-9: exit the root shell
+* step-10: remount the sysroot to readonly mode using `mount -o ro, remount /sysroot` and exit the emergency mode.
+* step-11: enter the bios mode again and move to the linux line and add `systemd.unit=multi-user.target` and exit
+* step-12: login using root and password created early.
+
+## Logging and using Journals
+
+* To persist the journal files store them in the /var/log/journal folder.
+* Create a folder /var/log/journal and run the command `journalctl --flush` in that folder to set it as default.
+
+## Identifying individual processes and killing them and scheduling the processes
+
+* Using `top` command we can look into the processes and a lot of info about the processes.
+* Using `pkill` we can kill the process
+* Using `chrt` we can schedule the priority level of the process.
+
+## Managing mounted disks
+![DiskPartitions](./images/disk_partitions.png) 
+
+**Persistent mounts**
+* Mounts that are configured to mount automatically, such as at boot time, or when a request to mount all file systems is
+  issued.
+* The ensure our system is configured to survive routine processes such as reboot.
+* Just add mounts to the /etc/fstab to ensure persistence.
+
+```
+Scenario:
+We have some temporary mounts on the RHEL8 server that our summer intern setup that we need to make permanent.
+There is a filesystem for a web project that needs to stick around a little longer and some addtional swap space that was
+added and now needs to be made persistent. 
+```
+Get the uuid's of the mounts and add them to the /etc/fstab file
+* **fdisk** using fdisk we can create partitions.`sudo fdisk /dev/xvdb` creates a partition under xvdb
+* To see the partitions we can use `sudo fdisk -l or lsblk`
+* To create an ext4 filesystem in the created partition `sudo mkfs.ext4 /dev/xvdb1`
+* Mount the file system using `sudo mkdir /mnt/ext4disk` and `sudo mount /dev/svdb1 /mnt/ext4disk/`
+* Add the uuid of the file system to the /etc/fstab file. Get the UUID using `lsblk -f`
+* mount the filesystem using `sudo mount -a`
+* To create a swap use the command `sudo mkswap /dev/xvdd(location of the filesystem)`
+* add the uuid to the etc/fstab providing the type as swap
+* mount it using sudo mount -a
+* We can create moreswap using the `sudo mkswap /moreswap`
+* add the UUID to the /etc/fstab to make it persistent.
+* reload the daemon using `sudo systemctl deamon-reload`
+* run the command `sudo swapon /moreswap` to load the moreswap as swap memory filesystem.
+
+## Logical volumes
+
+![Disk Partition commands](./images/disk_parti.png)
+
+* list the blocks using `lsblk`
+* create the partition and change the type to Linux LVM using `sudo fdisk /dev/xvdd` and enter **t** once you created the
+  partition and select the id for Linux LVM and enter it. For first time to list the id catalog enter l
+* Do the above task for all the required file systems.
+* Run the command `sudo partprobe` to update the kernel with the work we did till now.
+* To create a physical volume `sudo pvcreate /dev/xvdb1` and for the remaining.
+* We can check the physical volumes using `sudo pvs`
+* Create a volume group and add the xvdb1 volume to that group using `sudo vgcreate VolGrp0 /dev/xvdb1`
+* To check the volume group `sudo vgs`
+* We can extend the group by adding the additional physical volumes using `sudo vdextend VolGrp0 /dev/xvdc1 /dev/xvdd1`
+* We can create logical volume using `sudo lvcreate -L+3.99(size) -n "datavol" (name) VolGrp0`
+* Check the logical volumes using `sudo lvs`
+* Create a filesystem in the datavol using `sudo mkfs.ext4 /dev/VolGrp0/datvol`
+* create a mount point using `sudo mkdir -p /mnt/datavol` and `sudo mount /dev/VolGrp0/datavol /mnt/datavol`
+* we can extend the logical volume using `sudo lvextend -L+1.91GB /dev/VolGrp0/datavol`
+* We can resize the logical volume using `sudo lvresize --resizefs --size 5.98GB /dev/VolGrp0/datavol`
+* We can reduce the size of the volume using `sudo lvreduce --resizefs --size 3.98GB /dev/VolGrp0/datavol`
+* We can remove the physical volume out of the volume group using `sudo vgreduce /dev/VolGrp0 /dev/xvdd1`
+* We can remove the logical volume using `sudo pvremove /dev/xvdd1`
