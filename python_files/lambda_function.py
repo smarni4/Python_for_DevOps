@@ -25,3 +25,4 @@ def lambda_handler(event, context):
         logging.error(f'Error running process in EC2 instance {e}')
     print('Process run in EC2')
 
+#21355300#

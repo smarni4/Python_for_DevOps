@@ -280,7 +280,7 @@ Get the uuid's of the mounts and add them to the /etc/fstab file
 * **fdisk** using fdisk we can create partitions.`sudo fdisk /dev/xvdb` creates a partition under xvdb
 * To see the partitions we can use `sudo fdisk -l or lsblk`
 * To create an ext4 filesystem in the created partition `sudo mkfs.ext4 /dev/xvdb1`
-* Mount the file system using `sudo mkdir /mnt/ext4disk` and `sudo mount /dev/svdb1 /mnt/ext4disk/`
+* Mount the file system using `sudo mkdir /mnt/ext4disk` and `sudo mount /dev/xvdb1 /mnt/ext4disk/`
 * Add the uuid of the file system to the /etc/fstab file. Get the UUID using `lsblk -f`
 * mount the filesystem using `sudo mount -a`
 * To create a swap use the command `sudo mkswap /dev/xvdd(location of the filesystem)`
@@ -314,3 +314,105 @@ Get the uuid's of the mounts and add them to the /etc/fstab file
 * We can reduce the size of the volume using `sudo lvreduce --resizefs --size 3.98GB /dev/VolGrp0/datavol`
 * We can remove the physical volume out of the volume group using `sudo vgreduce /dev/VolGrp0 /dev/xvdd1`
 * We can remove the logical volume using `sudo pvremove /dev/xvdd1`
+
+## Managing Filesystem
+![File system comparison](./images/file_systems_comparison.png)
+
+```
+Scenario:
+We left some project data in our home directory, and a few projects in  home directory that are needed to move to
+independent local file system. So we can properly maintain going forward.
+```
+* Create partitions using **fdisk**
+* Create the directories under /mnt folder for all the filesystems to mount them persistently.
+* Add the UUId to the **/mnt/fstab** file and mentioning their types and mnt folders created earlier.
+* Mount all of them using **mount -a**
+* To test the mounted filesystems create a directory and file inside each of the filesystem.
+
+## Network file system
+We can export the data of the filesystem to other filesystem using nfs.
+```
+Scenario:
+Web developers are asked us to mount two content directories shared via NFS exports to their RHEL 8 development server.
+We have been asked to configure the mounts persistently.
+```
+* create two directories using **mkdir -p /export/web_data{1,2}** under the **/export** folder.
+* edit the export file under /etc folder. Add the created directories and the ip address of the system where you want to
+  export the content and set the required options. `/export/web_data1    {ip}(rw, sync,no_root_squash)`
+* enable and start the nfs server using **systemctl enable --now nfs-server** and check the status using **systemctl status nfs-server**
+* check the available filesystems to mount using **showmount -e** mention ip address if you want to check in machine other than local.
+* configure the nfs mounts by creating directories under /mnt folder using **mkdir -p /mnt/nfs_web_data{1,2}**
+* add them to the /etc/fstab file using **ip_address:/export/web_data1   /mnt/nfs_web_data1   nfs  defaults,_netdev  0 0**
+* test them by mounting them using **mount -a** and **mount | grep -i nfs**
+* Add some files to the /mnt/web_data1, and you can see the same data under the /export /web_data1 folder.
+
+## Autofs
+
+We can mount user filesystems on demand using autofs.
+
+* **autofs files and directories**
+![autofs files and directories](./images/autofs_files.png)
+* **auto.master file**
+  * In this file we define all the filesystems we want to mount with autofs.
+  * we don't put everything needed to configure the mounts in here, we just mention the mount point, location of the map file that defines the mount point and options required.
+* **Map files**
+  * Map files where we configure individual mount points.
+  * Similar to the format of **auto.master** file, except the options field is in the middle.
+
+```
+Scenario:
+We have user home directories all over the place! Every user has a home directory on every server, and it is inefficient
+and hard to manage. We are planning to consolidate user home directories to one server, where they will be available to 
+other servers via NFS and autofs.
+```
+* All the users had their home directories under their user profile.
+* Root user can't able to access their home directories.
+* To give the access to the root user or manage all the users home directories from one server we need to add the
+  **/export/home /etc/auto.home** in the auto.master file.
+* Add the line `* ip_address:/home/&` to the auto.home file to tell the server to look in our local server at the nfs host home share.
+* Check the available mount files using **showmount -e**
+* Enable the autofs server using **systemctl enable --now autofs**
+* Now we can access the users home directory from root user and can add the files and directories.
+
+## UID GID sticky bit
+![user_id,Group_id,Sticky_bit](./images/uid_gid.png)
+
+```
+Scenario:
+Marketing team has opened a ticket requesting that we create a shared directory for their team documents. They want 
+everyone on their team to have access to the directory.
+```
+* add the group for marketing team using **groupadd marketing_team**
+* add users to the group using
+  ```Bash
+  for i in manny jack moe ; do
+  useradd -m -G marketing_team $i
+  done
+  ```
+* set up the share directory using **mkdir -p /home/marketing_dir**
+* Add the marketing_dir to the group using **chown -R :marketing_team /home/marketing_dir/**
+* Set the permissions to the directory as no other user apart from the marketing team can access it using **chmod 770 /home/marketing_dir/**
+* Check the status of the directory using **stat /home/marketing_dir/**
+* To set the access to the group members use **chmod g+s /home/marketing_dir**
+
+## Manage Layered Storage
+
+```
+Scenario:
+Application team asked to setup a new storage service on RHEL 8 server. The application teams asked for straits, so they
+can manage the storage themselves after we handed it to them. We have been asked to copy their documents there and make
+an initial snapshot of the documents file system.
+```
+* install the stratis using **dnf install -y stratisd stratis-cli**
+* enable and start the stratis using **systemctl enable --now stratisd**
+* list the block devices using **lsblk -f**
+* create a stratis pool using **stratis pool create appteam /dev/nvme1n1**
+* to list the block devices that are using stratis **stratis blkdev**
+* to list the filesystems **stratis fs**
+* create the stratis filesystem using **stratis fs create appteam appfs1**
+* create a directory under the /mnt to create a mount point **mkdir -p /mnt/app_storage**
+* To persistent mount add it to the /etc/fstab **/stratis/appteam/appfs1   /mnt/app_storage    xfs   defaults,x-systemd.requires=stratisd.service   0 0** the last two digits represents dump and fscheck.
+* mount the filesystem using **mount -a**
+* We can add the devices to the pool using **stratis pool add-data appteam /dev/nvme2n1**
+* We can take the snapshots in the stratis using **stratis fs snapshot appteam appfs1 appfs1-snapshot**
+* We can rename the filesystem in stratis using **stratis fs rename appteam appfs1 appfs1-orig**

@@ -18,7 +18,7 @@ if [ "$USERFILE" == "" ] ; then
 else
   if [ "$ACTION" == "add" ] ; then
 
-    for user in `cat $USERFILE` ;
+    for user in `cat "$USERFILE"` ;
     do
       echo "Adding the $user and setting the default password!"
       useradd -m $user ; echo "$user:$PASSWORD" | chpasswd
