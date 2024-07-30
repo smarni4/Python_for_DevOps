@@ -1,10 +1,10 @@
 import boto3
-from botocore.exceptions import ClientError
+# from botocore.exceptions import ClientError
 import logging
 
 ec2 = boto3.resource('ec2')
 
-def lambda_handler(event, context):
+def lambda_handler(event):
     try:
         message = event['Records'][0]['body']
         print(f"Received message: {message}")
@@ -24,5 +24,3 @@ def lambda_handler(event, context):
     except Exception as e:
         logging.error(f'Error running process in EC2 instance {e}')
     print('Process run in EC2')
-
-#21355300#
