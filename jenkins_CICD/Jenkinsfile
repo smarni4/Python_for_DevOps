@@ -1,10 +1,13 @@
 Pipeline {
-    agent { any} }
+    agent { label slave} }
     stages {
-        stage('build') {
+        stage('checking the Java version') {
             steps {
-                sh 'java --version'
-            }
+		script {
+			echo "Running on slave-1 node.."
+	                sh 'java --version'
+            	}
+	    }
         }
     }
 }
