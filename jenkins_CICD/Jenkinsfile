@@ -1,5 +1,6 @@
 pipeline {
     agent { label "slave-1" }
+    options { skipDefaultCheckout(true) }
     stages {
         stage('checking the Java version') {
             steps {
