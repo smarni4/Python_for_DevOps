@@ -3,10 +3,9 @@ pipeline {
     stages {
         stage('checking the Java version') {
             steps {
-		script {
-			echo "Running on slave-1 node.."
-	                sh 'java --version'
-            	}
+		echo "Running on slave-1 node.."
+                sh 'java --version'
+        
 	    }
         }
     }
