@@ -6,7 +6,7 @@ pipeline {
             steps {
 		echo "Running on slave-1 node.."
                 sh 'java --version'
-                echo "Testing slave-1 node" > test.txt
+                touch test.txt
 	    }
         }
     }
